@@ -415,15 +415,15 @@ module.exports = function (grunt) {
       your_target: {
         options: {
           authKey: 'ftphost',
-          host: '<%= ftpHost %>',
+          host: '<%%= ftpHost %>',
           // port: 21,
-          dest: '<%= config.dest %>'
+          dest: '<%%= config.dest %>'
         },
         files: [ // Enable Dynamic Expansion, Src matches are relative to this path, Actual Pattern(s) to match
           {
             expand: true,
             // cwd: 'test',
-            src: ['<%= config.dist %>','<%= config.dist %>/**/*']
+            src: ['<%%= config.dist %>','<%%= config.dist %>/**/*']
           }
         ]
       }
