@@ -71,13 +71,16 @@ module.exports = yeoman.generators.Base.extend({
       default: '0distilled'
     }, {
       name: 'ftpHost',
-      message: 'What is the ftp host name?'
+      message: 'What is the ftp host name?',
+      default: 'nbed_ftpHost'
     }, {
       name: 'ftpUsername',
-      message: 'What is the ftp username?'
+      message: 'What is the ftp username?',
+      default: 'nbed_ftpUsername'
     }, {
       name: 'ftpPassword',
-      message: 'What is the ftp password?'
+      message: 'What is the ftp password?',
+      default: 'nbed_ftpPassword'
     }, {
       name: 'title',
       message: 'What is the page meta title?',
