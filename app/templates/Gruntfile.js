@@ -429,6 +429,18 @@ module.exports = function (grunt) {
       }
     },
 
+    // make a zipfile
+    compress: {
+      main: {
+        options: {
+          archive: 'zips/<%= appname %>-'+grunt.template.today('yyyymmdd-HHMM')+'.zip'
+        },
+        files: [
+          {src: ['dist/**'], dest: ''}
+        ]
+      }
+    },
+
     notify_hooks: {
       options: {
         enabled: true,
@@ -444,6 +456,11 @@ module.exports = function (grunt) {
       deploy: {
         options: {
           message: 'Deployment complete'
+        }
+      },
+      zip: {
+        options: {
+          message: 'Build compressed'
         }
       }
     },
@@ -532,6 +549,12 @@ module.exports = function (grunt) {
     'default',
     'ftp_push',
     'notify:deploy'
+  ]);
+
+  grunt.registerTask('zip', [
+    'default',
+    'compress',
+    'notify:zip'
   ]);
 
   grunt.registerTask('default', [
