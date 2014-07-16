@@ -176,6 +176,7 @@ module.exports = yeoman.generators.Base.extend({
     if (this.includeModernizr) {
       bower.dependencies.modernizr = "~2.8.2";
     }
+    bower.dependencies.respond = "~1.4.2";
 
     this.write('bower.json', JSON.stringify(bower, null, 2));
   },
