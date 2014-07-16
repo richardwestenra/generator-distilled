@@ -416,7 +416,7 @@ module.exports = function (grunt) {
       your_target: {
         options: {
           authKey: 'ftphost',
-          host: '<%%= ftpHost %>',
+          host: '<%= ftpHost %>',
           // port: 21,
           dest: '<%%= config.dest %>'
         },
