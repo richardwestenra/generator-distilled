@@ -19,8 +19,7 @@ module.exports = function (grunt) {
   // Configurable paths
   var config = {
     app: 'app',
-    dist: 'dist',
-    dest: '/mash-tun.net/<%= clientName %>/<%= appname %>/'
+    dist: 'dist'
   };
 
   // Define the configuration for all the tasks
@@ -418,7 +417,7 @@ module.exports = function (grunt) {
           authKey: 'ftphost',
           host: '<%= ftpHost %>',
           // port: 21,
-          dest: '<%%= config.dest %>'
+          dest: '/mash-tun.net/<%= clientName %>/<%= appname %>/'
         },
         files: [ // Enable Dynamic Expansion, Src matches are relative to this path, Actual Pattern(s) to match
           {
