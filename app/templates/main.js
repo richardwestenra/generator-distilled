@@ -6,7 +6,7 @@
 		console.log('Allo allo!');
 
     var $embed = $('#embed');
-    $('.embedLink,.close').on('click',function(e) {
+    $('.embedLink').on('click',function(e) {
       e.preventDefault();
       if ($embed.hasClass('visible')) {
         $embed.animate({bottom:'-200px'},'slow').fadeOut({queue:false}).removeClass('visible');

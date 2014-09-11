@@ -17,7 +17,7 @@ $c_primary: #007bb6;
 $c_opposite: #fff;
 
 // Other:
-$imageLocation: "../images/";
+$il: "../images/"; //image location
 
 // @Font-face:
 @mixin serif {
@@ -69,10 +69,10 @@ li, p, blockquote {
 @mixin svg($img){
     .no-js &,
     .no-svg & {
-        background-image: url($imageLocation + $img + ".png");
+        background-image: url($il + $img + ".png"); //image location
     }
     .svg & {
-        background-image: url($imageLocation + $img + ".svg");
+        background-image: url($il + $img + ".svg"); //image location
     }
 }
 
