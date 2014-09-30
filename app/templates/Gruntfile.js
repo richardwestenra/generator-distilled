@@ -195,7 +195,6 @@ module.exports = function (grunt) {
         sourceMap: true,
         includePaths: ['bower_components']
         <% } else { %>
-        sourcemap: true,
         loadPath: 'bower_components'
       <% } %>},
       dist: {
@@ -238,7 +237,7 @@ module.exports = function (grunt) {
       app: {
         ignorePath: /^<%= config.app %>\/|\.\.\//,
         src: ['<%%= config.app %>/index.html'],<% if (includeBootstrap) { %><% if (includeSass) { %>
-        exclude: ['bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap.js','bower_components/respond/']<% } else { %>
+        exclude: ['bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js','bower_components/respond/']<% } else { %>
         exclude: ['bower_components/bootstrap/dist/js/bootstrap.js','bower_components/respond/']<% } } else { %>
         exclude: ['bower_components/respond/']<% } %>
       }<% if (includeSass) { %>,
@@ -276,7 +275,11 @@ module.exports = function (grunt) {
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
       options: {
-        assetsDirs: ['<%%= config.dist %>', '<%%= config.dist %>/images']
+        assetsDirs: [
+          '<%%= config.dist %>',
+          '<%%= config.dist %>/images',
+          '<%%= config.dist %>/styles'
+        ]
       },
       html: ['<%%= config.dist %>/{,*/}*.html'],
       css: ['<%%= config.dist %>/styles/{,*/}*.css']
@@ -309,11 +312,12 @@ module.exports = function (grunt) {
       dist: {
         options: {
           collapseBooleanAttributes: true,
-          collapseWhitespace: false,
-          removeAttributeQuotes: false,
+          // collapseWhitespace: true,
+          // conservativeCollapse: true,
+          // removeAttributeQuotes: true,
           removeCommentsFromCDATA: true,
-          removeEmptyAttributes: false,
-          removeOptionalTags: false,
+          // removeEmptyAttributes: true,
+          // removeOptionalTags: true,
           removeRedundantAttributes: true,
           useShortDoctype: true
         },
@@ -362,12 +366,14 @@ module.exports = function (grunt) {
           dest: '<%%= config.dist %>',
           src: [
             '*.{ico,png,txt}',
-            '.htaccess',
             'images/{,*/}*.webp',
             '{,*/}*.html',
             'styles/fonts/{,*/}*.*',
             'social/{,*/}*.*'
           ]
+        }, {
+          src: 'node_modules/apache-server-configs/dist/.htaccess',
+          dest: '<%%= config.dist %>/.htaccess'
         }<% if (includeBootstrap) { %>, {
           expand: true,
           dot: true,
@@ -377,7 +383,7 @@ module.exports = function (grunt) {
               %>bower_components/bootstrap/dist<%
             } %>',
           src: '<% if (includeSass) {
-              %>bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*<%
+              %>bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*<%
             } else {
               %>fonts/*<%
             } %>',
