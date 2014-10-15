@@ -6,7 +6,13 @@
     "bootstrap": "~3.1.1",<% }} if (includeModernizr) { %>
     "modernizr": "~2.8.2",<% } %>
     "jquery": "~1.11.1",
-    "respond": "~1.4.2"
+    "respond": "~1.4.2",<% if (includeSocialLikes) { %>
+    "social-likes": "~3.0.4"
+  },
+  "overrides": {
+    "social-likes": {
+      "main": "./src/social-likes.js"
+    }<% } %>
   },
   "devDependencies": {}
 }

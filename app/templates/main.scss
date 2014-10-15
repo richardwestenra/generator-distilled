@@ -6,7 +6,11 @@
 <% } else { %>// bower:scss
 // endbower
 <% } %>
+<% if (includeSocialLikes) { %>
+@import "base", "fontface";
+<% } else { %>
 @import "base";
+<% } %>
 
 body {
 }

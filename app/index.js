@@ -110,6 +110,19 @@ module.exports = yeoman.generators.Base.extend({
       name: 'url',
       message: 'What is the page URL? (include trailing slash)',
       default: 'http://nbed_url/'
+    }, {
+      type: 'checkbox',
+      name: 'social',
+      message: 'What type of social buttons would you like?',
+      choices: [{
+        name: 'SocialLikes',
+        value: 'includeSocialLikes',
+        checked: true
+      },{
+        name: 'Addthis',
+        value: 'includeAddthis',
+        checked: false
+      }]
     }];
 
     this.prompt(prompts, function (answers) {
@@ -138,6 +151,13 @@ module.exports = yeoman.generators.Base.extend({
       this.twitter = answers.twitter;
       this.tweet = answers.tweet;
       this.url = answers.url;
+
+      var social = answers.social;
+      function hasSocial(s) {
+        return social && social.indexOf(s) !== -1;
+      }
+      this.includeSocialLikes = hasSocial('includeSocialLikes');
+      this.includeAddthis = hasSocial('includeAddthis');
 
       done();
     }.bind(this));
@@ -191,15 +211,18 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   stylesheets: function () {
-    var t = this;
+    var self = this;
     function css(file,prefix){
       prefix = prefix || '';
-      var css = file + '.' + (t.includeSass ? 's' : '') + 'css';
-      t.template(css, 'app/styles/' + prefix + css);
+      var css = file + '.' + (self.includeSass ? 's' : '') + 'css';
+      self.template(css, 'app/styles/' + prefix + css);
     }
     css('main');
     css('base','_');
     css('social','_');
+    if(this.includeSocialLikes){
+      css('fontface','_');
+    }
   },
 
   writeIndex: function () {
@@ -247,6 +270,7 @@ module.exports = yeoman.generators.Base.extend({
     this.directory('app');
     this.mkdir('app/scripts');
     this.mkdir('app/styles');
+    this.mkdir('app/styles/fonts');
     this.mkdir('app/images');
     this.mkdir('app/social');
     this.write('app/index.html', this.indexFile);
@@ -260,6 +284,10 @@ module.exports = yeoman.generators.Base.extend({
     else {
       this.template('main.js','app/scripts/main.js');
     }
+  },
+
+  fonts: function () {
+    this.copy('fontello.*', 'app/styles/fonts/fontello.*');
   },
 
   install: function () {
