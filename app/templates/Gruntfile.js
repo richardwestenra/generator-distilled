@@ -417,6 +417,7 @@ module.exports = function (grunt) {
     },<% } %>
 
     /* jshint camelcase:false */
+    // Deploy with FTP
     ftp_push: {
       your_target: {
         options: {
@@ -432,6 +433,28 @@ module.exports = function (grunt) {
             src: ['<%%= config.dist %>','<%%= config.dist %>/**/*']
           }
         ]
+      }
+    },
+
+    // Deploy with git
+    buildcontrol: {
+      options: {
+        dir: '<%%= config.dist %>',
+        commit: true,
+        push: true,
+        message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+      },
+      stage: {
+        options: {
+          remote: '<%= ftpUsername %>@<%= ftpHost %>:mash-tun.net/<%= clientName %>/<%= appname %>/.git',
+          branch: 'master'
+        }
+      },
+      local: {
+        options: {
+          remote: '../',
+          branch: 'build'
+        }
       }
     },
 
@@ -551,9 +574,15 @@ module.exports = function (grunt) {
     'notify:build'
   ]);
 
-  grunt.registerTask('deploy', [
+  grunt.registerTask('ftp', [
     'default',
     'ftp_push',
+    'notify:deploy'
+  ]);
+
+  grunt.registerTask('deploy', [
+    'default',
+    'buildcontrol:stage',
     'notify:deploy'
   ]);
 
