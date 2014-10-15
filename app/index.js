@@ -197,7 +197,15 @@ module.exports = yeoman.generators.Base.extend({
     if (this.includeModernizr) {
       bower.dependencies.modernizr = "~2.8.2";
     }
+
     bower.dependencies.respond = "~1.4.2";
+
+    if (this.includeSocialLikes) {
+      bower.dependencies["social-likes"] = "~3.0.4";
+      bower.overrides = {};
+      bower.overrides["social-likes"] = {};
+      bower.overrides["social-likes"].main = "./src/social-likes.js";
+    }
 
     this.write('bower.json', JSON.stringify(bower, null, 2));
   },
@@ -287,7 +295,15 @@ module.exports = yeoman.generators.Base.extend({
   },
 
   fonts: function () {
-    this.copy('fontello.*', 'app/styles/fonts/fontello.*');
+    var self = this;
+    function copyFont(ext){
+      self.copy('fontello.'+ext, 'app/styles/fonts/fontello.'+ext);
+    }
+    ['eot','svg','ttf','woff'].forEach(copyFont);
+    // this.copy('fontello.eot', 'app/styles/fonts/fontello.eot');
+    // this.copy('fontello.svg', 'app/styles/fonts/fontello.svg');
+    // this.copy('fontello.ttf', 'app/styles/fonts/fontello.ttf');
+    // this.copy('fontello.woff', 'app/styles/fonts/fontello.woff');
   },
 
   install: function () {

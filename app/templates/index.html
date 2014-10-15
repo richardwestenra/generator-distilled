@@ -30,6 +30,7 @@
     <meta name="twitter:description" content="<%= socialDesc %>">
     <!-- NBED check png/jpg filetypes: -->
     <meta property="twitter:image:src" content="<%= url %>social/twitter.png" />
+    <% if (includeAddthis) { %>
     <script type="text/javascript">
     var addthis_share = addthis_share || {};
     addthis_share = {
@@ -41,6 +42,7 @@
       }
     };
     </script>
+    <% } %>
 
     <!-- G+ -->
     <meta itemprop="name" content="<%= socialTitle %>">
@@ -130,6 +132,16 @@
       <textarea onClick="this.select();">&lt;a href=&quot;<%= url %>&quot; target=&quot;_blank&quot;&gt;&lt;img src=&quot;<%= url %>social/embed.png&quot; border=&quot;0&quot; width=&quot;550&quot; height=&quot;550&quot; /&gt;&lt;/a&gt;&lt;br /&gt;&lt;span style=&quot;font-size: 12px;&quot;&gt;Click image to open interactive version (via &lt;a href=&quot;http://www.<%= clientName %>.co.uk/&quot;&gt;<%= clientName %>&lt;/a&gt;).&lt;/span&gt;</textarea>
     </div>
 
+    <% if(includeSocialLikes) { %>
+    <div class="social social-likes social-likes_vertical social-likes_notext" data-url="<%= url %>" data-title="<%= socialTitle %>">
+      <a class="facebook" href="#" title="Share link on Facebook">Facebook</a>
+      <a class="twitter" href="#" data-via="<%= twitter %>" data-title="<%= tweet %>" title="Share link on Twitter">Twitter</a>
+      <a class="plusone" href="#" title="Share link on Google+">Google+</a>
+      <a class="pinterest" href="#" title="Share image on Pinterest" data-media="<%= url %>social/og1200.png">Pinterest</a>
+      <a class="embedLink" href="#" title="Embed link on your website"><span class="social-likes__button">Embed</span></a>
+    </div>
+    <% } %>
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <!-- endbower -->
@@ -167,8 +179,6 @@
         }
       });
     </script>
-    <% } %>
-    <% if(includeSocialLikes) { %>
     <% } %>
 
     <script src="http://www.linkstant.com/linkstant.js" type="text/javascript"></script>
