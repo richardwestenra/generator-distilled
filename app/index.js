@@ -57,7 +57,7 @@ module.exports = yeoman.generators.Base.extend({
       }]
     }, {
       when: function (answers) {
-        return answers && answers.feature &&
+        return answers && answers.features &&
           answers.features.indexOf('includeSass') !== -1;
       },
       type: 'confirm',
@@ -207,6 +207,7 @@ module.exports = yeoman.generators.Base.extend({
       bower.overrides["social-likes"].main = "./src/social-likes.js";
     }
 
+    this.copy('bowerrc', '.bowerrc');
     this.write('bower.json', JSON.stringify(bower, null, 2));
   },
 
@@ -284,13 +285,10 @@ module.exports = yeoman.generators.Base.extend({
     this.write('app/index.html', this.indexFile);
 
     if (this.coffee) {
-      this.write(
-        'app/scripts/main.coffee',
-        'console.log "\'Allo from CoffeeScript!"'
-      );
+      this.copy('main.coffee', 'app/scripts/main.coffee');
     }
     else {
-      this.template('main.js','app/scripts/main.js');
+      this.copy('main.js', 'app/scripts/main.js');
     }
   },
 

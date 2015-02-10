@@ -1,6 +1,5 @@
-/* jshint ignore: start */
-/* jshint ignore: end */
-/* globals */
+// jshint devel:true
+
 $(function(){
 	'use strict';
 

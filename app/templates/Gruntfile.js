@@ -1,3 +1,5 @@
+/*jshint node:true*/
+
 // Generated on <%= (new Date).toISOString().split('T')[0] %> using
 // <%= pkg.name %> <%= pkg.version %>
 'use strict';
@@ -46,7 +48,7 @@ module.exports = function (grunt) {
         files: ['<%%= config.app %>/scripts/{,*/}*.js'],
         tasks: ['jshint'],
         options: {
-          livereload: true
+          livereload: '<%%= connect.options.livereload %>'
         }
       },
       jstest: {
@@ -220,7 +222,11 @@ module.exports = function (grunt) {
     // Add vendor prefixed styles
     autoprefixer: {
       options: {
-        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
+        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']<% if (includeSass) { %>,
+        map: {
+          prev: '.tmp/styles/'
+        }
+        <% } %>
       },
       dist: {
         files: [{
@@ -318,7 +324,8 @@ module.exports = function (grunt) {
           removeCommentsFromCDATA: true,
           // removeEmptyAttributes: true,
           // removeOptionalTags: true,
-          removeRedundantAttributes: true,
+          // true would impact styles with attribute selectors
+          removeRedundantAttributes: false,
           useShortDoctype: true
         },
         files: [{
@@ -371,9 +378,6 @@ module.exports = function (grunt) {
             'styles/fonts/{,*/}*.*',
             'social/{,*/}*.*'
           ]
-        }, {
-          src: 'node_modules/apache-server-configs/dist/.htaccess',
-          dest: '<%%= config.dist %>/.htaccess'
         }<% if (includeBootstrap) { %>, {
           expand: true,
           dot: true,
@@ -389,14 +393,14 @@ module.exports = function (grunt) {
             } %>',
           dest: '<%%= config.dist %>'
         }<% } %>]
-      },
+      }<% if (!includeSass) { %>,
       styles: {
         expand: true,
         dot: true,
         cwd: '<%%= config.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
-      }
+      }<% } %>
     },<% if (includeModernizr) { %>
 
     // Generates a custom Modernizr build that includes only the tests you
@@ -496,19 +500,19 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
-      server: [<% if (includeSass) { %>
-        'sass:server',<% } if (coffee) {  %>
-        'coffee:dist',<% } %>
-        'copy:styles'
+      server: [<% if (coffee) {  %>
+        'coffee:dist'<% } %><% if (coffee && includeSass) {  %>,<% } %><% if (includeSass) { %>
+        'sass:server'<% } else { %>
+        'copy:styles'<% } %>
       ],
       test: [<% if (coffee) { %>
-        'coffee',<% } %>
-        'copy:styles'
+        'coffee',<% } %><% if (coffee && !includeSass) {  %>,<% } %><% if (!includeSass) { %>
+        'copy:styles'<% } %>
       ],
       dist: [<% if (coffee) { %>
-        'coffee',<% } if (includeSass) { %>
-        'sass',<% } %>
-        'copy:styles',
+        'coffee',<% } %><% if (includeSass) { %>
+        'sass',<% } else { %>
+        'copy:styles',<% } %>
         'imagemin',
         'svgmin'
       ]
