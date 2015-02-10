@@ -4,6 +4,7 @@
 $m_smallest: 300px;
 $m_smaller: 400px;
 $m_small: 500px;
+$m_smallish: 600px;
 $m_tablet: 768px;
 $m_medium: 960px;
 $m_large: 1140px;
@@ -15,6 +16,7 @@ $c_bg: #e0e0e0;
 $c_base: #333;
 $c_primary: #007bb6;
 $c_opposite: #fff;
+$c_link: steelblue;
 <% if (includeSocialLikes) { %>
 
 // Social colours:
@@ -28,6 +30,7 @@ $embed: #555;
 
 // Other:
 $il: "../images/"; //image location
+$closeSize: 20px; // Close icon size
 
 // @Font-face:
 @mixin serif {
@@ -46,19 +49,32 @@ html, body {
     -webkit-font-smoothing: antialiased;
     font-smoothing: antialiased;
 }
+body {
+    font-size: 90%;
+    @media (min-width: $m_smaller) {
+        font-size: 100%;
+    }
+}
 h1, h2, h3, h4, h5, h6 {
     line-height: 1.1em;
 }
 li, p, blockquote {
     line-height: 1.5em;
 }
+a {
+    color: $c_primary;
+    text-decoration: underline;
+    &:hover {
+        text-decoration: none;
+    }
+}
 
 .wrapper {
     width: 90%;
-    margin: 0 5%;
-    @media only screen and (min-width: $m_medium) {
+    margin-left: auto;
+    margin-right: auto;
+    @media (min-width: $m_medium) {
         width: $m_medium;
-        margin: 0 auto;
     }
 }
 .browsehappy {

@@ -5,10 +5,6 @@ $(function(){
 
 
 
-  //--- Global & cached variables ---//
-
-
-
   //--- Helper functions ---//
 
   // Round to the nearest 2 large digits (e.g. 12345 => 12000)
@@ -33,11 +29,15 @@ $(function(){
 
 
 
+  //--- Global variables ---//
+
+  var $embed = $('#embed');
+
+
 
   
   //--- Embed button ---//
 
-  var $embed = $('#embed');
   $('.embedLink').on('click',function(e) {
     e.preventDefault();
     if ($embed.hasClass('visible')) {
@@ -59,3 +59,35 @@ $(function(){
 
 
 });
+
+
+
+//--- Add Linkedin to Social Likes ---//
+
+var socialLikesButtons = { // must be global because plugin requires it
+  linkedin: {
+    counterUrl: 'http://www.linkedin.com/countserv/count/share?url={url}',
+    counter: function(jsonUrl, deferred) {
+      'use strict';
+      var options = socialLikesButtons.linkedin;
+      if (!options._) {
+        options._ = {};
+        if (!window.IN) {
+          window.IN = {Tags: {}};
+        }
+        window.IN.Tags.Share = {
+          handleCount: function(params) {
+            var jsonUrl = options.counterUrl.replace(/{url}/g, encodeURIComponent(params.url));
+            options._[jsonUrl].resolve(params.count);
+          }
+        };
+      }
+      options._[jsonUrl] = deferred;
+      $.getScript(jsonUrl)
+      .fail(deferred.reject);
+    },
+    popupUrl: 'http://www.linkedin.com/shareArticle?mini=false&url={url}&title={title}',
+    popupWidth: 650,
+    popupHeight: 500
+  }
+};
