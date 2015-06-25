@@ -1,5 +1,4 @@
 'use strict';
-
 var join = require('path').join;
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
@@ -16,12 +15,12 @@ module.exports = yeoman.generators.Base.extend({
     });
     this.testFramework = this.options['test-framework'];
 
-    this.option('coffee', {
-      desc: 'Use CoffeeScript',
+    this.option('babel', {
+      desc: 'Use Babel',
       type: Boolean,
-      defaults: false
+      defaults: true
     });
-    this.coffee = this.options.coffee;
+    this.babel = this.options.babel;
 
     this.pkg = require('../package.json');
   },
@@ -55,17 +54,6 @@ module.exports = yeoman.generators.Base.extend({
         value: 'includeModernizr',
         checked: true
       }]
-    }, {
-      when: function (answers) {
-        return answers && answers.features &&
-          answers.features.indexOf('includeSass') !== -1;
-      },
-      type: 'confirm',
-      name: 'libsass',
-      value: 'includeLibSass',
-      message: 'Would you like to use libsass? Read up more at \n' +
-        chalk.green('https://github.com/andrew/node-sass#node-sass'),
-      default: false
     }, {
       name: 'clientName',
       message: 'What is the client directory name?',
@@ -136,8 +124,6 @@ module.exports = yeoman.generators.Base.extend({
       this.includeBootstrap = hasFeature('includeBootstrap');
       this.includeModernizr = hasFeature('includeModernizr');
 
-      this.includeLibSass = answers.libsass;
-      this.includeRubySass = !answers.libsass;
       this.clientName = answers.clientName;
       this.ftpHost = answers.ftpHost;
       this.ftpUsername = answers.ftpUsername;
@@ -189,13 +175,13 @@ module.exports = yeoman.generators.Base.extend({
 
     if (this.includeBootstrap) {
       var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
-      bower.dependencies[bs] = "~3.2.0";
+      bower.dependencies[bs] = '~3.3.0';
     } else {
-      bower.dependencies.jquery = "~1.11.1";
+      bower.dependencies.jquery = '~1.11.1';
     }
 
     if (this.includeModernizr) {
-      bower.dependencies.modernizr = "~2.8.2";
+      bower.dependencies.modernizr = '~2.8.2';
     }
 
     bower.dependencies.respond = "~1.4.2";
@@ -284,12 +270,7 @@ module.exports = yeoman.generators.Base.extend({
     this.mkdir('app/social');
     this.write('app/index.html', this.indexFile);
 
-    if (this.coffee) {
-      this.copy('main.coffee', 'app/scripts/main.coffee');
-    }
-    else {
-      this.copy('main.js', 'app/scripts/main.js');
-    }
+    this.copy('main.js', 'app/scripts/main.js');
   },
 
   fonts: function () {
@@ -306,7 +287,7 @@ module.exports = yeoman.generators.Base.extend({
         options: {
           'skip-message': this.options['skip-install-message'],
           'skip-install': this.options['skip-install'],
-          'coffee': this.options.coffee
+          'babel': this.options.babel
         }
       });
 

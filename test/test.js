@@ -1,7 +1,5 @@
-/*global describe, beforeEach, it*/
-
+'use strict';
 var path = require('path');
-var assert = require('assert');
 var helpers = require('yeoman-generator').test;
 var assert = require('yeoman-generator').assert;
 var _ = require('underscore');
@@ -16,7 +14,7 @@ describe('Distilled generator', function () {
 
     var expectedContent = [
       ['bower.json', /"name": "tmp"/],
-      ['package.json', /"name": "tmp"/]
+      ['package.json', /"private": true/]
     ];
     var expected = [
       '.editorconfig',
@@ -53,13 +51,11 @@ describe('Distilled generator', function () {
           'app/scripts/main.js'
         ));
         assert.noFile([
-          'app/styles/main.scss',
-          'app/scripts/main.coffee'
+          'app/styles/main.scss'
         ]);
 
         assert.fileContent(expectedContent);
         assert.noFileContent([
-          ['Gruntfile.js', /coffee/],
           ['Gruntfile.js', /modernizr/],
           ['app/index.html', /modernizr/],
           ['bower.json', /modernizr/],
@@ -76,26 +72,6 @@ describe('Distilled generator', function () {
           ['app/index.html', /Sass is a mature/],
           ['bower.json', /bootstrap-sass-official/]
         ]);
-        done();
-      });
-    });
-
-    it('creates expected CoffeeScript files', function (done) {
-      runGen.withOptions(
-        _.extend(options, {coffee: true})
-      ).on('end', function () {
-
-        assert.file([].concat(
-          expected,
-          'app/scripts/main.coffee'
-        ));
-        assert.noFile('app/scripts/main.js');
-
-        assert.fileContent([].concat(
-          expectedContent,
-          [['Gruntfile.js', /coffee/]]
-        ));
-
         done();
       });
     });
@@ -129,30 +105,9 @@ describe('Distilled generator', function () {
       });
     });
 
-    it('creates expected ruby SASS components', function (done) {
-      runGen.withOptions(options).withPrompt({features: ['includeSass']})
-      .on('end', function () {
-
-        assert.fileContent([
-          ['Gruntfile.js', /sass/],
-          ['app/index.html', /Sass/],
-          ['.gitignore', /\.sass-cache/],
-          ['package.json', /grunt-contrib-sass/]
-        ]);
-
-        assert.noFileContent([
-          ['package.json', /grunt-sass/],
-          ['app/index.html', /Sass is a mature/]
-        ]);
-
-        done();
-      });
-    });
-
-    it('creates expected node SASS files', function (done) {
+    it('creates expected Sass files', function (done) {
       runGen.withOptions(options).withPrompt({
-        features: ['includeSass'],
-        libsass: true
+        features: ['includeSass']
       }).on('end', function () {
 
         assert.fileContent([
@@ -160,7 +115,6 @@ describe('Distilled generator', function () {
         ]);
 
         assert.noFileContent([
-          ['package.json', /grunt-contrib-sass/],
           ['Gruntfile.js', /bootstrap-sass-official/]
         ]);
 
@@ -168,7 +122,7 @@ describe('Distilled generator', function () {
       });
     });
 
-    it('creates expected SASS and Bootstrap components', function (done) {
+    it('creates expected Sass and Bootstrap components', function (done) {
       runGen.withOptions(options).withPrompt({
         features: ['includeSass', 'includeBootstrap']
       }).on('end', function () {
@@ -177,6 +131,19 @@ describe('Distilled generator', function () {
           ['Gruntfile.js', /bootstrap-sass-official/],
           ['app/index.html', /Sass is a mature/],
           ['bower.json', /bootstrap-sass-official/]
+        ]);
+
+        done();
+      });
+    });
+
+    it('creates the expected Babel config', function (done) {
+      runGen.withOptions(
+        _.extend(options, { babel: true })
+      ).on('end', function () {
+        assert.fileContent([
+          ['Gruntfile.js', /babel/],
+          ['package.json', /babel/]
         ]);
 
         done();

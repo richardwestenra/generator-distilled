@@ -15,8 +15,10 @@ module.exports = function (grunt) {
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
-  // Load grunt tasks automatically
-  require('load-grunt-tasks')(grunt);
+  // Automatically load required grunt tasks
+  require('jit-grunt')(grunt, {
+      useminPrepare: 'grunt-usemin'
+  });
 
   // Configurable paths
   var config = {
@@ -35,21 +37,18 @@ module.exports = function (grunt) {
       bower: {
         files: ['bower.json'],
         tasks: ['wiredep']
-      },<% if (coffee) { %>
-      coffee: {
-        files: ['<%%= config.app %>/scripts/{,*/}*.{coffee,litcoffee,coffee.md}'],
-        tasks: ['coffee:dist']
+      },<% if (babel) { %>
+      babel: {
+        files: ['<%%= config.app %>/scripts/{,*/}*.js'],
+        tasks: ['babel:dist']
       },
-      coffeeTest: {
-        files: ['test/spec/{,*/}*.{coffee,litcoffee,coffee.md}'],
-        tasks: ['coffee:test', 'test:watch']
+      babelTest: {
+        files: ['test/spec/{,*/}*.js'],
+        tasks: ['babel:test', 'test:watch']
       },<% } else { %>
       js: {
         files: ['<%%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['jshint'],
-        options: {
-          livereload: '<%%= connect.options.livereload %>'
-        }
+        tasks: ['jshint']
       },
       jstest: {
         files: ['test/spec/{,*/}*.js'],
@@ -65,58 +64,50 @@ module.exports = function (grunt) {
       styles: {
         files: ['<%%= config.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
-      },
-      livereload: {
-        options: {
-          livereload: '<%%= connect.options.livereload %>'
-        },
-        files: [
-          '<%%= config.app %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',<% if (coffee) { %>
-          '.tmp/scripts/{,*/}*.js',<% } %>
-          '<%%= config.app %>/images/{,*/}*'
-        ]
       }
     },
 
-    // The actual grunt server settings
-    connect: {
+    browserSync: {
       options: {
-        port: 9000,
-        open: true,
-        livereload: 35729,
-        // Change this to '0.0.0.0' to access the server from outside
-        hostname: 'localhost'
+        notify: false,
+        background: true
       },
       livereload: {
         options: {
-          middleware: function(connect) {
-            return [
-              connect.static('.tmp'),
-              connect().use('/bower_components', connect.static('./bower_components')),
-              connect.static(config.app)
-            ];
+          files: [
+            '<%%= config.app %>/{,*/}*.html',
+            '.tmp/styles/{,*/}*.css',
+            '<%%= config.app %>/images/{,*/}*',
+            '<%%= config.app %>/scripts/{,*/}*.js'
+          ],
+          port: 9000,
+          server: {
+            baseDir: ['.tmp', config.app],
+            routes: {
+              '/bower_components': './bower_components'
+            }
           }
         }
       },
       test: {
         options: {
-          open: false,
           port: 9001,
-          middleware: function(connect) {
-            return [
-              connect.static('.tmp'),
-              connect.static('test'),
-              connect().use('/bower_components', connect.static('./bower_components')),
-              connect.static(config.app)
-            ];
+          open: false,
+          logLevel: 'silent',
+          host: 'localhost',
+          server: {<% if (testFramework === 'mocha') { %>
+            baseDir: ['.tmp', './test', config.app],<% } else if (testFramework === 'jasmine') { %>
+            baseDir: ['./'],<% } %>
+            routes: {
+              '/bower_components': './bower_components'
+            }
           }
         }
       },
       dist: {
         options: {
-          base: '<%%= config.dist %>',
-          livereload: false
+          background: false,
+          server: '<%%= config.dist %>'
         }
       }
     },
@@ -155,7 +146,7 @@ module.exports = function (grunt) {
       all: {
         options: {
           run: true,
-          urls: ['http://<%%= connect.test.options.hostname %>:<%%= connect.test.options.port %>/index.html']
+          urls: ['http://<%%= browserSync.test.options.host %>:<%%= browserSync.test.options.port %>/index.html']
         }
       }
     },<% } else if (testFramework === 'jasmine') { %>
@@ -163,19 +154,25 @@ module.exports = function (grunt) {
     // Jasmine testing framework configuration options
     jasmine: {
       all: {
+        src: '{<%= config.app %>,.tmp}/scripts/{,*/}*.js',
         options: {
-          specs: 'test/spec/{,*/}*.js'
+          vendor: [
+            // Your bower_components scripts
+          ],
+          specs: '{test,.tmp}/spec/{,*/}*.js',
+          helpers: '{test,.tmp}/helpers/{,*/}*.js',
+          host: 'http://<%%= browserSync.test.options.host %>:<%%= browserSync.test.options.port %>'
         }
       }
-    },<% } %><% if (coffee) { %>
+    },<% } %><% if (babel) { %>
 
-    // Compiles CoffeeScript to JavaScript
-    coffee: {
+    // Compiles ES6 with Babel
+    babel: {
       dist: {
         files: [{
           expand: true,
           cwd: '<%%= config.app %>/scripts',
-          src: '{,*/}*.{coffee,litcoffee,coffee.md}',
+          src: '{,*/}*.js',
           dest: '.tmp/scripts',
           ext: '.js'
         }]
@@ -184,7 +181,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: 'test/spec',
-          src: '{,*/}*.{coffee,litcoffee,coffee.md}',
+          src: '{,*/}*.js',
           dest: '.tmp/spec',
           ext: '.js'
         }]
@@ -193,12 +190,11 @@ module.exports = function (grunt) {
 
     // Compiles Sass to CSS and generates necessary files if requested
     sass: {
-      options: {<% if (includeLibSass) { %>
+      options: {
         sourceMap: true,
-        includePaths: ['bower_components']
-        <% } else { %>
+        includePaths: ['bower_components'],
         loadPath: 'bower_components'
-      <% } %>},
+      },
       dist: {
         files: [{
           expand: true,
@@ -254,17 +250,15 @@ module.exports = function (grunt) {
     },
 
     // Renames files for browser caching purposes
-    rev: {
+    filerev: {
       dist: {
-        files: {
-          src: [
-            '<%%= config.dist %>/scripts/{,*/}*.js',
-            '<%%= config.dist %>/styles/{,*/}*.css',
-            '<%%= config.dist %>/images/{,*/}*.*',
-            '<%%= config.dist %>/styles/fonts/{,*/}*.*',
-            '<%%= config.dist %>/*.{ico,png}'
-          ]
-        }
+        src: [
+          '<%%= config.dist %>/scripts/{,*/}*.js',
+          '<%%= config.dist %>/styles/{,*/}*.css',
+          '<%%= config.dist %>/images/{,*/}*.*',
+          '<%%= config.dist %>/styles/fonts/{,*/}*.*',
+          '<%%= config.dist %>/*.{ico,png}'
+        ]
       }
     },
 
@@ -500,17 +494,17 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
-      server: [<% if (coffee) {  %>
-        'coffee:dist'<% } %><% if (coffee && includeSass) {  %>,<% } %><% if (includeSass) { %>
+      server: [<% if (babel) { %>
+        'babel:dist',<% } %><% if (includeSass) { %>
         'sass:server'<% } else { %>
         'copy:styles'<% } %>
       ],
-      test: [<% if (coffee) { %>
-        'coffee',<% } %><% if (coffee && !includeSass) {  %>,<% } %><% if (!includeSass) { %>
+      test: [<% if (babel) { %>
+        'babel'<% } %><% if (babel && !includeSass) { %>,<% } %><% if (!includeSass) { %>
         'copy:styles'<% } %>
       ],
-      dist: [<% if (coffee) { %>
-        'coffee',<% } %><% if (includeSass) { %>
+      dist: [<% if (babel) { %>
+        'babel',<% } %><% if (includeSass) { %>
         'sass',<% } else { %>
         'copy:styles',<% } %>
         'imagemin',
@@ -522,12 +516,10 @@ module.exports = function (grunt) {
   grunt.task.run('notify_hooks');
 
 
-  grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function (target) {
-    if (grunt.option('allow-remote')) {
-      grunt.config.set('connect.options.hostname', '0.0.0.0');
-    }
+  grunt.registerTask('serve', 'start the server and preview your app', function (target) {
+
     if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
+      return grunt.task.run(['build', 'browserSync:dist']);
     }
 
     grunt.task.run([
@@ -535,7 +527,7 @@ module.exports = function (grunt) {
       'wiredep',
       'concurrent:server',
       'autoprefixer',
-      'connect:livereload',
+      'browserSync:livereload',
       'watch'
     ]);
   });
@@ -555,7 +547,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'connect:test',<% if (testFramework === 'mocha') { %>
+      'browserSync:test',<% if (testFramework === 'mocha') { %>
       'mocha'<% } else if (testFramework === 'jasmine') { %>
       'jasmine'<% } %>
     ]);
@@ -572,7 +564,7 @@ module.exports = function (grunt) {
     'uglify',
     'copy:dist',<% if (includeModernizr) { %>
     'modernizr',<% } %>
-    'rev',
+    'filerev',
     'usemin',
     'htmlmin',
     'notify:build'
