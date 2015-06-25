@@ -258,6 +258,7 @@ module.exports = yeoman.generators.Base.extend({
       self.copy('fontello.'+ext, 'app/styles/fonts/fontello.'+ext);
     }
     ['eot','svg','ttf','woff'].forEach(copyFont);
+    self.copy('config.json', 'app/styles/fonts/config.json');
   },
 
   install: function () {
