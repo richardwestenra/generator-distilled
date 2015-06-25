@@ -1,4 +1,4 @@
-/*jshint node:true*/
+/*jshint node:true, camelcase:false*/
 
 // Generated on <%= (new Date).toISOString().split('T')[0] %> using
 // <%= pkg.name %> <%= pkg.version %>
@@ -17,7 +17,8 @@ module.exports = function (grunt) {
 
   // Automatically load required grunt tasks
   require('jit-grunt')(grunt, {
-      useminPrepare: 'grunt-usemin'
+      useminPrepare: 'grunt-usemin',
+      notify_hooks: 'grunt-notify'
   });
 
   // Configurable paths
@@ -413,26 +414,6 @@ module.exports = function (grunt) {
         uglify: true
       }
     },<% } %>
-
-    /* jshint camelcase:false */
-    // Deploy with FTP
-    ftp_push: {
-      your_target: {
-        options: {
-          authKey: 'ftphost',
-          host: '<%= ftpHost %>',
-          // port: 21,
-          dest: '/mash-tun.net/<%= clientName %>/<%= appname %>/'
-        },
-        files: [ // Enable Dynamic Expansion, Src matches are relative to this path, Actual Pattern(s) to match
-          {
-            expand: true,
-            // cwd: 'test',
-            src: ['<%%= config.dist %>','<%%= config.dist %>/**/*']
-          }
-        ]
-      }
-    },
 
     // Deploy with git
     buildcontrol: {
