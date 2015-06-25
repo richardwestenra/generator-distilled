@@ -43,6 +43,7 @@ html, body {
     margin: 0;
     padding: 0;
     @include sansSerif;
+    color: $c_base;
     background: $c_bg;
     -webkit-font-smoothing: antialiased;
     font-smoothing: antialiased;
@@ -69,16 +70,14 @@ a {
 
 .wrapper {
     width: 90%;
+    max-width: $m_medium;
     margin-left: auto;
     margin-right: auto;
-    @media (min-width: $m_medium) {
-        width: $m_medium;
-    }
 }
 .browsehappy {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
+    margin: 0;
+    background: $c_primary;
+    color: $c_opposite;
     padding: 1em 0;
     text-align: center;
 }
