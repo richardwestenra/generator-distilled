@@ -98,19 +98,6 @@ module.exports = yeoman.generators.Base.extend({
       name: 'url',
       message: 'What is the page URL? (include trailing slash)',
       default: 'http://nbed_url/'
-    }, {
-      type: 'checkbox',
-      name: 'social',
-      message: 'What type of social buttons would you like?',
-      choices: [{
-        name: 'SocialLikes',
-        value: 'includeSocialLikes',
-        checked: true
-      },{
-        name: 'Addthis',
-        value: 'includeAddthis',
-        checked: false
-      }]
     }];
 
     this.prompt(prompts, function (answers) {
@@ -137,14 +124,6 @@ module.exports = yeoman.generators.Base.extend({
       this.twitter = answers.twitter;
       this.tweet = answers.tweet;
       this.url = answers.url;
-
-      var social = answers.social;
-      function hasSocial(s) {
-        return social && social.indexOf(s) !== -1;
-      }
-      this.includeSocialLikes = hasSocial('includeSocialLikes');
-      this.includeAddthis = hasSocial('includeAddthis');
-
       done();
     }.bind(this));
   },

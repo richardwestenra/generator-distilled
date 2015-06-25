@@ -1,10 +1,4 @@
 //--- Social icons etc ---//
-<% if (includeAddthis) { %>
-.addthis-smartlayers {
-    position: relative;
-    z-index: 9999;
-}
-<% } %>
 .closeEmbed {
     position: absolute;
     display: block;
@@ -61,7 +55,6 @@
     }
 }
 
-<% if (includeSocialLikes) { %>
 // Social buttons:
 .social {
     $ds: 30px;
@@ -213,4 +206,3 @@
                 }
             }
 }
-<% } %>

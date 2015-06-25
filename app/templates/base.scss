@@ -17,7 +17,6 @@ $c_base: #333;
 $c_primary: #007bb6;
 $c_opposite: #fff;
 $c_link: steelblue;
-<% if (includeSocialLikes) { %>
 
 // Social colours:
 $facebook: #3b5998;
@@ -26,7 +25,6 @@ $gplus: #dd4b39;
 $linkedin: #007bb6;
 $pinterest: #cb2027;
 $embed: #555;
-<% } %>
 
 // Other:
 $il: "../images/"; //image location
