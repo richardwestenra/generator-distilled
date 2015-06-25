@@ -55,17 +55,25 @@
     }
 }
 
-// Social buttons:
-.social {
-    $ds: 30px;
+// Floating social buttons
+.social-likes_vertical {
+    $ds: 35px;
     $dl: 48px;
-    float: left;
+    position: fixed;
+    text-align: center;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    opacity: 0;
+    transition: opacity ease 1s;
+    z-index: 50;
+    &.social-likes_visible {
+        opacity: 1;
+    }
     @media (min-width: $m_large) {
-        float: none;
-        text-align: center;
-        position: fixed;
-        left: 0;
-        top: 10%;
+        top: 20%;
+        bottom: auto;
+        width: auto;
     }
     @media (min-width: $m_large) and (min-height: $m_small) {
         top: 30%;
@@ -73,8 +81,8 @@
     a {
         float: left;
         height: $ds;
-        margin-right: 10px;
-        line-height: $ds * 1.1;
+        width: (100%/5);
+        line-height: $ds * 1.2;
         color: #fff;
         text-shadow: 0 1px 1px rgba(#000,.1);
         transition: all ease .2s;
@@ -90,17 +98,12 @@
         }
         &:after {
             content: '';
-            width: $ds;
+            width: 100%;
             height: $ds;
             position: absolute;
             top: 0;
             left: 0;
         }
-        // @media (max-width: $m_large) {
-        //     &:hover {
-        //         background: #444; //nbed
-        //     }
-        // }
         
         @media (min-width: $m_large) {
             display: block;
@@ -123,65 +126,33 @@
     }
         .facebook, .social-likes__widget_facebook {
             @extend .icon-facebook;
-            &:after {
-                background-color: $facebook;
-            }
+            background-color: $facebook;
         }
         .twitter, .social-likes__widget_twitter {
             @extend .icon-twitter;
-            &:after {
-                background-color: $twitter;
-            }
+            background-color: $twitter;
         }
         .plusone, .social-likes__widget_plusone {
             @extend .icon-gplus;
-            &:after {
-                background-color: $gplus;
-            }
+            background-color: $gplus;
             &:before {
                 top: 0.05em;
             }
         }
         .linkedin, .social-likes__widget_linkedin {
+            background-color: $linkedin;
             @extend .icon-linkedin;
-            &:after {
-                background-color: $linkedin;
-            }
         }
         .pinterest, .social-likes__widget_pinterest {
             @extend .icon-pinterest-circled;
-            &:after {
-                background-color: $pinterest;
-            }
+            background-color: $pinterest;
         }
         .embedLink {
             @extend .icon-code;
-            &:after {
-                background-color: $embed;
-            }
+            background-color: $embed;
             &:before {
                 text-indent: -0.02em;
                 top: -0.05em;
-            }
-        }
-        @media (min-width: $m_large) {
-            .facebook, .social-likes__widget_facebook {
-                background-color: $facebook;
-            }
-            .twitter, .social-likes__widget_twitter {
-                background-color: $twitter;
-            }
-            .plusone, .social-likes__widget_plusone {
-                background-color: $gplus;
-            }
-            .linkedin, .social-likes__widget_linkedin {
-                background-color: $linkedin;
-            }
-            .pinterest, .social-likes__widget_pinterest {
-                background-color: $pinterest;
-            }
-            .embedLink {
-                background-color: $embed;
             }
         }
 
@@ -190,15 +161,10 @@
             }
             
             .social-likes__counter {
-                float: right;
-                font-size: 13px;
-                line-height: $ds;
-                margin: 1px 12px 1px 5px;
+                display: none;
                 @media (min-width: $m_large) {
                     display: block;
                     font-size: 12px;
-                    margin: 0;
-                    float: none;
                     line-height: 1em;
                 }
                 &.social-likes__counter_empty {
