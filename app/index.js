@@ -1,11 +1,27 @@
 'use strict';
-var join = require('path').join;
-var yeoman = require('yeoman-generator');
+var path = require('path');
+var generators = require('yeoman-generator');
+var yosay = require('yosay');
 var chalk = require('chalk');
+var wiredep = require('wiredep');
+var mkdirp = require('mkdirp');
+var _s = require('underscore.string');
 
-module.exports = yeoman.generators.Base.extend({
+module.exports = generators.Base.extend({
   constructor: function () {
-    yeoman.generators.Base.apply(this, arguments);
+    var testLocal;
+
+    generators.Base.apply(this, arguments);
+
+    this.option('skip-welcome-message', {
+      desc: 'Skips the welcome message',
+      type: Boolean
+    });
+
+    this.option('skip-install-message', {
+      desc: 'Skips the message after the installation of dependencies',
+      type: Boolean
+    });
 
     // setup the test-framework property, Gruntfile template will need this
     this.option('test-framework', {
@@ -13,28 +29,37 @@ module.exports = yeoman.generators.Base.extend({
       type: String,
       defaults: 'mocha'
     });
-    this.testFramework = this.options['test-framework'];
 
     this.option('babel', {
       desc: 'Use Babel',
       type: Boolean,
       defaults: false
     });
-    this.babel = this.options.babel;
 
+    if (this.options['test-framework'] === 'mocha') {
+      testLocal = require.resolve('generator-mocha/generators/app/index.js');
+    } else if (this.options['test-framework'] === 'jasmine') {
+      testLocal = require.resolve('generator-jasmine/lib/generators/app/index.js');
+    }
+
+    this.composeWith(this.options['test-framework'] + ':app', {
+      options: {
+        'skip-install': this.options['skip-install']
+      }
+    }, {
+      local: testLocal
+    });
+  },
+
+  initializing: function () {
     this.pkg = require('../package.json');
   },
 
   askFor: function () {
     var done = this.async();
 
-    // welcome message
     if (!this.options['skip-welcome-message']) {
-      this.log(require('yosay')());
-      this.log(chalk.magenta(
-        'Out of the box I include HTML5 Boilerplate, jQuery, and a ' +
-        'Gruntfile.js to build your app.'
-      ));
+      this.log(yosay('\'Allo \'allo! Out of the box I include HTML5 Boilerplate, jQuery, and a Gruntfile to build your app.'));
     }
 
     var prompts = [{
@@ -42,14 +67,14 @@ module.exports = yeoman.generators.Base.extend({
       name: 'features',
       message: 'What more would you like?',
       choices: [{
-        name: 'Bootstrap',
-        value: 'includeBootstrap',
-        checked: false
-      },{
         name: 'Sass',
         value: 'includeSass',
         checked: true
-      },{
+      }, {
+        name: 'Bootstrap',
+        value: 'includeBootstrap',
+        checked: false
+      }, {
         name: 'Modernizr',
         value: 'includeModernizr',
         checked: true
@@ -123,151 +148,259 @@ module.exports = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  gruntfile: function () {
-    this.template('Gruntfile.js');
-  },
+  writing: {
+    gruntfile: function () {
+      this.fs.copyTpl(
+        this.templatePath('Gruntfile.js'),
+        this.destinationPath('Gruntfile.js'),
+        {
+          pkg: this.pkg,
+          includeSass: this.includeSass,
+          includeBootstrap: this.includeBootstrap,
+          includeModernizr: this.includeModernizr,
+          testFramework: this.options['test-framework'],
+          useBabel: this.options['babel']
+        }
+      );
+    },
 
-  packageJSON: function () {
-    this.template('_package.json', 'package.json');
-  },
+    packageJSON: function () {
+      this.fs.copyTpl(
+        this.templatePath('_package.json'),
+        this.destinationPath('package.json'),
+        {
+          includeSass: this.includeSass,
+          includeModernizr: this.includeModernizr,
+          testFramework: this.options['test-framework'],
+          useBabel: this.options['babel']
+        }
+      )
+    },
 
-  git: function () {
-    this.template('gitignore', '.gitignore');
-    this.copy('gitattributes', '.gitattributes');
-  },
+    git: function () {
+      this.fs.copyTpl(
+        this.templatePath('gitignore'),
+        this.destinationPath('.gitignore'),
+        {
+          includeSass: this.includeSass
+        }
+      );
 
-  bower: function () {
-    var bower = {
-      name: this._.slugify(this.appname),
-      private: true,
-      dependencies: {}
-    };
+      this.fs.copy(
+        this.templatePath('gitattributes'),
+        this.destinationPath('.gitattributes')
+      );
+    },
 
-    if (this.includeBootstrap) {
-      var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
-      bower.dependencies[bs] = '~3.3.0';
-    } else {
-      bower.dependencies.jquery = '~1.11.1';
+    bower: function () {
+      var bowerJson = {
+        name: _s.slugify(this.appname),
+        private: true,
+        dependencies: {}
+      };
+
+      bowerJson.dependencies.respond = "~1.4.2";
+
+      bowerJson.dependencies["social-likes"] = "~3.0.4";
+      bowerJson.overrides = {};
+      bowerJson.overrides["social-likes"] = {};
+      bowerJson.overrides["social-likes"].main = "./src/social-likes.js";
+
+      if (this.includeBootstrap) {
+        if (this.includeSass) {
+          bowerJson.dependencies['bootstrap-sass'] = '~3.3.5';
+          bowerJson.overrides = {
+            'bootstrap-sass': {
+              'main': [
+                'assets/stylesheets/_bootstrap.scss',
+                'assets/fonts/bootstrap/*',
+                'assets/javascripts/bootstrap.js'
+              ]
+            }
+          };
+        } else {
+          bowerJson.dependencies['bootstrap'] = '~3.3.5';
+          bowerJson.overrides = {
+            'bootstrap': {
+              'main': [
+                'less/bootstrap.less',
+                'dist/css/bootstrap.css',
+                'dist/js/bootstrap.js',
+                'dist/fonts/*'
+              ]
+            }
+          };
+        }
+      } else {
+        bowerJson.dependencies['jquery'] = '~2.1.4';
+      }
+
+      if (this.includeModernizr) {
+        bowerJson.dependencies['modernizr'] = '~2.8.3';
+      }
+
+      this.fs.writeJSON('bower.json', bowerJson);
+      this.fs.copy(
+        this.templatePath('bowerrc'),
+        this.destinationPath('.bowerrc')
+      );
+    },
+
+    jshint: function () {
+      this.fs.copyTpl(
+        this.templatePath('jshintrc'),
+        this.destinationPath('.jshintrc'),
+        {
+          testFramework: this.options['test-framework']
+        }
+      );
+    },
+
+    readme: function () {
+      this.copy('readme.md', 'readme.md');
+    },
+
+    editorConfig: function () {
+      this.fs.copy(
+        this.templatePath('editorconfig'),
+        this.destinationPath('.editorconfig')
+      );
+    },
+
+    scripts: function () {
+      this.fs.copy(
+        this.templatePath('main.js'),
+        this.destinationPath('app/scripts/main.js')
+      );
+    },
+
+    styles: function () {
+      var ext = this.includeSass ? '.scss' : '.css';
+      var prefix = this.includeSass ? '_' : '';
+      function stylesheet(name){
+        return prefix + name + ext;
+      }
+
+      this.fs.copyTpl(
+        this.templatePath('main'+ext),
+        this.destinationPath('app/styles/main'+ext),
+        {
+          includeBootstrap: this.includeBootstrap
+        }
+      );
+      this.fs.copyTpl(
+        this.templatePath( stylesheet('base') ),
+        this.destinationPath('app/styles/'+stylesheet('base') )
+      );
+      this.fs.copyTpl(
+        this.templatePath( stylesheet('social') ),
+        this.destinationPath('app/styles/'+stylesheet('social') )
+      );
+      this.fs.copyTpl(
+        this.templatePath( stylesheet('fontface') ),
+        this.destinationPath('app/styles/'+stylesheet('fontface') )
+      );
+    },
+
+    fonts: function () {
+      var fontfiles = [
+        'fontello.eot',
+        'fontello.svg',
+        'fontello.ttf',
+        'fontello.woff',
+        'config.json'
+      ];
+
+      fontfiles.forEach(function (file){
+        this.fs.copyTpl(
+          this.templatePath(file),
+          this.destinationPath('app/styles/fonts/'+file)
+        );
+      }.bind(this) );
+    },
+
+    html: function () {
+      var bsPath;
+
+      // path prefix for Bootstrap JS files
+      if (this.includeBootstrap) {
+        if (this.includeSass) {
+          bsPath = '/bower_components/bootstrap-sass/assets/javascripts/bootstrap/';
+        } else {
+          bsPath = '/bower_components/bootstrap/js/';
+        }
+      }
+
+      this.fs.copyTpl(
+        this.templatePath('index.html'),
+        this.destinationPath('app/index.html'),
+        {
+          appname: this.appname,
+          includeSass: this.includeSass,
+          includeBootstrap: this.includeBootstrap,
+          includeModernizr: this.includeModernizr,
+          bsPath: bsPath,
+          bsPlugins: [
+            'affix',
+            'alert',
+            'dropdown',
+            'tooltip',
+            'modal',
+            'transition',
+            'button',
+            'popover',
+            'carousel',
+            'scrollspy',
+            'collapse',
+            'tab'
+          ]
+        }
+      );
+    },
+
+    misc: function () {
+      mkdirp('app/images');
+      mkdirp('app/social');
     }
-
-    if (this.includeModernizr) {
-      bower.dependencies.modernizr = '~2.8.2';
-    }
-
-    bower.dependencies.respond = "~1.4.2";
-
-    bower.dependencies["social-likes"] = "~3.0.4";
-    bower.overrides = {};
-    bower.overrides["social-likes"] = {};
-    bower.overrides["social-likes"].main = "./src/social-likes.js";
-
-    this.copy('bowerrc', '.bowerrc');
-    this.write('bower.json', JSON.stringify(bower, null, 2));
-  },
-
-  jshint: function () {
-    this.copy('jshintrc', '.jshintrc');
-  },
-
-  readme: function () {
-    this.copy('readme.md', 'readme.md');
-  },
-
-  editorConfig: function () {
-    this.copy('editorconfig', '.editorconfig');
-  },
-
-  stylesheets: function () {
-    var self = this;
-    function css(file,prefix){
-      prefix = prefix || '';
-      var css = file + '.' + (self.includeSass ? 's' : '') + 'css';
-      self.template(css, 'app/styles/' + prefix + css);
-    }
-    css('main');
-    css('base','_');
-    css('social','_');
-    css('fontface','_');
-  },
-
-  writeIndex: function () {
-    this.indexFile = this.engine(
-      this.readFileAsString(join(this.sourceRoot(), 'index.html')),
-      this
-    );
-
-    // wire Bootstrap plugins
-    if (this.includeBootstrap && !this.includeSass) {
-      var bs = 'bower_components/bootstrap/js/';
-
-      this.indexFile = this.appendFiles({
-        html: this.indexFile,
-        fileType: 'js',
-        optimizedPath: 'scripts/plugins.js',
-        sourceFileList: [
-          bs + 'affix.js',
-          bs + 'alert.js',
-          bs + 'dropdown.js',
-          bs + 'tooltip.js',
-          bs + 'modal.js',
-          bs + 'transition.js',
-          bs + 'button.js',
-          bs + 'popover.js',
-          bs + 'carousel.js',
-          bs + 'scrollspy.js',
-          bs + 'collapse.js',
-          bs + 'tab.js'
-        ],
-        searchPath: '.'
-      });
-    }
-
-    this.indexFile = this.appendFiles({
-      html: this.indexFile,
-      fileType: 'js',
-      optimizedPath: 'scripts/main.js',
-      sourceFileList: ['scripts/main.js'],
-      searchPath: ['app', '.tmp']
-    });
-  },
-
-  app: function () {
-    this.directory('app');
-    this.mkdir('app/scripts');
-    this.mkdir('app/styles');
-    this.mkdir('app/styles/fonts');
-    this.mkdir('app/images');
-    this.mkdir('app/social');
-    this.write('app/index.html', this.indexFile);
-
-    this.copy('main.js', 'app/scripts/main.js');
-  },
-
-  fonts: function () {
-    var self = this;
-    function copyFont(ext){
-      self.copy('fontello.'+ext, 'app/styles/fonts/fontello.'+ext);
-    }
-    ['eot','svg','ttf','woff'].forEach(copyFont);
-    self.copy('config.json', 'app/styles/fonts/config.json');
   },
 
   install: function () {
-    this.on('end', function () {
-      this.invoke(this.options['test-framework'], {
-        options: {
-          'skip-message': this.options['skip-install-message'],
-          'skip-install': this.options['skip-install'],
-          'babel': this.options.babel
-        }
-      });
-
-      if (!this.options['skip-install']) {
-        this.installDependencies({
-          skipMessage: this.options['skip-install-message'],
-          skipInstall: this.options['skip-install']
-        });
-      }
+    this.installDependencies({
+      skipInstall: this.options['skip-install'],
+      skipMessage: this.options['skip-install-message']
     });
+  },
+
+  end: function () {
+    var bowerJson = this.fs.readJSON(this.destinationPath('bower.json'));
+    var howToInstall =
+      '\nAfter running ' +
+      chalk.yellow.bold('npm install & bower install') +
+      ', inject your' +
+      '\nfront end dependencies by running ' +
+      chalk.yellow.bold('grunt wiredep') +
+      '.';
+
+    if (this.options['skip-install']) {
+      this.log(howToInstall);
+      return;
+    }
+
+    // wire Bower packages to .html
+    wiredep({
+      bowerJson: bowerJson,
+      src: 'app/index.html',
+      exclude: ['bootstrap.js'],
+      ignorePath: /^app\/|\.\.\//
+    });
+
+    if (this.includeSass) {
+      // wire Bower packages to .scss
+      wiredep({
+        bowerJson: bowerJson,
+        src: 'app/styles/*.scss',
+        ignorePath: /(\.\.\/){1,2}bower_components\//
+      });
+    }
   }
 });

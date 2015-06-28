@@ -38,7 +38,7 @@ module.exports = function (grunt) {
       bower: {
         files: ['bower.json'],
         tasks: ['wiredep']
-      },<% if (babel) { %>
+      },<% if (useBabel) { %>
       babel: {
         files: ['<%%= config.app %>/scripts/{,*/}*.js'],
         tasks: ['babel:dist']
@@ -60,11 +60,11 @@ module.exports = function (grunt) {
       },<% if (includeSass) { %>
       sass: {
         files: ['<%%= config.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['sass:server', 'autoprefixer']
+        tasks: ['sass:server', 'postcss']
       },<% } %>
       styles: {
         files: ['<%%= config.app %>/styles/{,*/}*.css'],
-        tasks: ['newer:copy:styles', 'autoprefixer']
+        tasks: ['newer:copy:styles', 'postcss']
       }
     },
 
@@ -78,8 +78,9 @@ module.exports = function (grunt) {
           files: [
             '<%%= config.app %>/{,*/}*.html',
             '.tmp/styles/{,*/}*.css',
-            '<%%= config.app %>/images/{,*/}*',
-            '<%%= config.app %>/scripts/{,*/}*.js'
+            '<%%= config.app %>/images/{,*/}*',<% if (useBabel) { %>
+            '.tmp/scripts/{,*/}*.js'<% } else { %>
+            '<%%= config.app %>/scripts/{,*/}*.js'<% } %>
           ],
           port: 9000,
           server: {
@@ -165,7 +166,7 @@ module.exports = function (grunt) {
           host: 'http://<%%= browserSync.test.options.host %>:<%%= browserSync.test.options.port %>'
         }
       }
-    },<% } %><% if (babel) { %>
+    },<% } %><% if (useBabel) { %>
 
     // Compiles ES6 with Babel
     babel: {
@@ -193,8 +194,9 @@ module.exports = function (grunt) {
     sass: {
       options: {
         sourceMap: true,
-        includePaths: ['bower_components'],
-        loadPath: 'bower_components'
+        sourceMapEmbed: true,
+        sourceMapContents: true,
+        includePaths: ['bower_components']
       },
       dist: {
         files: [{
@@ -216,14 +218,15 @@ module.exports = function (grunt) {
       }
     },<% } %>
 
-    // Add vendor prefixed styles
-    autoprefixer: {
+    postcss: {
       options: {
-        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']<% if (includeSass) { %>,
-        map: {
-          prev: '.tmp/styles/'
-        }
-        <% } %>
+        map: true,
+        processors: [
+          // Add vendor prefixed styles
+          require('autoprefixer-core')({
+            browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
+          })
+        ]
       },
       dist: {
         files: [{
@@ -238,11 +241,13 @@ module.exports = function (grunt) {
     // Automatically inject Bower components into the HTML file
     wiredep: {
       app: {
-        ignorePath: /^<%= config.app %>\/|\.\.\//,
-        src: ['<%%= config.app %>/index.html'],<% if (includeBootstrap) { %><% if (includeSass) { %>
-        exclude: ['bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js','bower_components/respond/']<% } else { %>
-        exclude: ['bower_components/bootstrap/dist/js/bootstrap.js','bower_components/respond/']<% } } else { %>
-        exclude: ['bower_components/respond/']<% } %>
+        src: ['<%%= config.app %>/index.html'],
+<% if (includeBootstrap) { -%>
+        exclude: ['bootstrap.js','bower_components/respond/'],
+<% } else { -%>
+        exclude: ['bower_components/respond/'],
+<% } -%>
+        ignorePath: /^<%%= config.app %>\/|\.\.\//
       }<% if (includeSass) { %>,
       sass: {
         src: ['<%%= config.app %>/styles/{,*/}*.{scss,sass}'],
@@ -382,7 +387,7 @@ module.exports = function (grunt) {
               %>bower_components/bootstrap/dist<%
             } %>',
           src: '<% if (includeSass) {
-              %>bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*<%
+              %>bower_components/bootstrap-sass/assets/fonts/bootstrap/*<%
             } else {
               %>fonts/*<%
             } %>',
@@ -475,16 +480,16 @@ module.exports = function (grunt) {
 
     // Run some tasks in parallel to speed up build process
     concurrent: {
-      server: [<% if (babel) { %>
+      server: [<% if (useBabel) { %>
         'babel:dist',<% } %><% if (includeSass) { %>
         'sass:server'<% } else { %>
         'copy:styles'<% } %>
       ],
-      test: [<% if (babel) { %>
-        'babel'<% } %><% if (babel && !includeSass) { %>,<% } %><% if (!includeSass) { %>
+      test: [<% if (useBabel) { %>
+        'babel'<% } %><% if (useBabel && !includeSass) { %>,<% } %><% if (!includeSass) { %>
         'copy:styles'<% } %>
       ],
-      dist: [<% if (babel) { %>
+      dist: [<% if (useBabel) { %>
         'babel',<% } %><% if (includeSass) { %>
         'sass',<% } else { %>
         'copy:styles',<% } %>
@@ -507,7 +512,7 @@ module.exports = function (grunt) {
       'clean:server',
       'wiredep',
       'concurrent:server',
-      'autoprefixer',
+      'postcss',
       'browserSync:livereload',
       'watch'
     ]);
@@ -523,7 +528,7 @@ module.exports = function (grunt) {
       grunt.task.run([
         'clean:server',
         'concurrent:test',
-        'autoprefixer'
+        'postcss'
       ]);
     }
 
@@ -539,7 +544,7 @@ module.exports = function (grunt) {
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
-    'autoprefixer',
+    'postcss',
     'concat',
     'cssmin',
     'uglify',

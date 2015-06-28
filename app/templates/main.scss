@@ -1,7 +1,9 @@
 //-- Main --//
-<% if (includeBootstrap) { %>$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
+<% if (includeBootstrap) { -%>
+$icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
+
 // bower:scss
-@import "bootstrap-sass-official/assets/stylesheets/bootstrap.scss";
+@import "bootstrap-sass/assets/stylesheets/bootstrap.scss";
 // endbower
 <% } else { %>// bower:scss
 // endbower
