@@ -165,12 +165,10 @@ module.exports = yeoman.generators.Base.extend({
 
     bower.dependencies.respond = "~1.4.2";
 
-    if (this.includeSocialLikes) {
-      bower.dependencies["social-likes"] = "~3.0.4";
-      bower.overrides = {};
-      bower.overrides["social-likes"] = {};
-      bower.overrides["social-likes"].main = "./src/social-likes.js";
-    }
+    bower.dependencies["social-likes"] = "~3.0.4";
+    bower.overrides = {};
+    bower.overrides["social-likes"] = {};
+    bower.overrides["social-likes"].main = "./src/social-likes.js";
 
     this.copy('bowerrc', '.bowerrc');
     this.write('bower.json', JSON.stringify(bower, null, 2));
@@ -198,9 +196,7 @@ module.exports = yeoman.generators.Base.extend({
     css('main');
     css('base','_');
     css('social','_');
-    if(this.includeSocialLikes){
-      css('fontface','_');
-    }
+    css('fontface','_');
   },
 
   writeIndex: function () {
