@@ -425,7 +425,7 @@ module.exports = function (grunt) {
       },
       stage: {
         options: {
-          remote: '<%= ftpUsername %>@<%= ftpHost %>:mash-tun.net/<%= clientName %>/<%= appname %>/.git',
+          remote: '<%= sshUsername %>@<%= sshHost %>:mash-tun.net/<%= clientName %>/<%= appname %>/.git',
           branch: 'master'
         }
       },
@@ -549,12 +549,6 @@ module.exports = function (grunt) {
     'usemin',
     'htmlmin',
     'notify:build'
-  ]);
-
-  grunt.registerTask('ftp', [
-    'default',
-    'ftp_push',
-    'notify:deploy'
   ]);
 
   grunt.registerTask('deploy', [
