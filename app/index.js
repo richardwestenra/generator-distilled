@@ -280,9 +280,6 @@ module.exports = generators.Base.extend({
     styles: function () {
       var ext = this.includeSass ? '.scss' : '.css';
       var prefix = this.includeSass ? '_' : '';
-      function stylesheet(name){
-        return prefix + name + ext;
-      }
 
       this.fs.copyTpl(
         this.templatePath('main'+ext),
@@ -315,10 +312,8 @@ module.exports = generators.Base.extend({
       ];
 
       fontfiles.forEach(function (file){
-        this.fs.copyTpl(
-          this.templatePath(file),
-          this.destinationPath('app/styles/fonts/'+file)
-        );
+        // Use old-style copy method because the new one corrupts webfonts
+        this.copy(file, 'app/styles/fonts/'+file);
       }.bind(this) );
     },
 
