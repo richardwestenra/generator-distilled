@@ -140,7 +140,6 @@ module.exports = generators.Base.extend({
       this.socialTitle = answers.socialTitle;
       this.desc = answers.desc;
       this.socialDesc = answers.socialDesc;
-      this.socialDesc = answers.socialDesc;
       this.twitter = answers.twitter;
       this.tweet = answers.tweet;
       this.url = answers.url;
@@ -155,6 +154,10 @@ module.exports = generators.Base.extend({
         this.destinationPath('Gruntfile.js'),
         {
           pkg: this.pkg,
+          appname: this.appname,
+          clientName: this.clientName,
+          sshHost: this.sshHost,
+          sshUsername: this.sshUsername,
           includeSass: this.includeSass,
           includeBootstrap: this.includeBootstrap,
           includeModernizr: this.includeModernizr,
@@ -289,16 +292,16 @@ module.exports = generators.Base.extend({
         }
       );
       this.fs.copyTpl(
-        this.templatePath( stylesheet('base') ),
-        this.destinationPath('app/styles/'+stylesheet('base') )
+        this.templatePath('base'+ext),
+        this.destinationPath('app/styles/'+prefix+'base'+ext)
       );
       this.fs.copyTpl(
-        this.templatePath( stylesheet('social') ),
-        this.destinationPath('app/styles/'+stylesheet('social') )
+        this.templatePath('social'+ext),
+        this.destinationPath('app/styles/'+prefix+'social'+ext)
       );
       this.fs.copyTpl(
-        this.templatePath( stylesheet('fontface') ),
-        this.destinationPath('app/styles/'+stylesheet('fontface') )
+        this.templatePath('fontface'+ext),
+        this.destinationPath('app/styles/'+prefix+'fontface'+ext)
       );
     },
 
@@ -336,6 +339,13 @@ module.exports = generators.Base.extend({
         this.destinationPath('app/index.html'),
         {
           appname: this.appname,
+          title: this.title,
+          desc: this.desc,
+          socialTitle: this.socialTitle,
+          socialDesc: this.socialDesc,
+          twitter: this.twitter,
+          tweet: this.tweet,
+          url: this.url,
           includeSass: this.includeSass,
           includeBootstrap: this.includeBootstrap,
           includeModernizr: this.includeModernizr,
