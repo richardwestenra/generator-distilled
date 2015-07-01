@@ -170,6 +170,9 @@ module.exports = function (grunt) {
 
     // Compiles ES6 with Babel
     babel: {
+      options: {
+          sourceMap: true
+      },
       dist: {
         files: [{
           expand: true,
