@@ -1,5 +1,3 @@
-// jshint devel:true
-
 $(function(){
 	'use strict';
 
@@ -29,15 +27,15 @@ $(function(){
 
 
 
-  //--- Global variables ---//
-
-  var $embed = $('#embed');
+  //--- Config variables ---//
 
 
 
-  
+
+
   //--- Embed button ---//
 
+  var $embed = $('#embed');
   $('.embedLink').on('click',function(e) {
     e.preventDefault();
     if ($embed.hasClass('visible')) {
@@ -50,7 +48,7 @@ $(function(){
 
 
   //--- Reformat counter share number ---//
-  
+
   $('.social-likes').socialLikes().on('counter.social-likes', function(event, service, number) {
     if(number > 0){
       $('.social-likes__counter_'+service).text( si(number) );

@@ -1,5 +1,3 @@
-/*jshint node:true, camelcase:false*/
-
 // Generated on <%= (new Date).toISOString().split('T')[0] %> using
 // <%= pkg.name %> <%= pkg.version %>
 'use strict';
@@ -17,8 +15,8 @@ module.exports = function (grunt) {
 
   // Automatically load required grunt tasks
   require('jit-grunt')(grunt, {
-      useminPrepare: 'grunt-usemin',
-      notify_hooks: 'grunt-notify'
+    useminPrepare: 'grunt-usemin',
+    notify_hooks: 'grunt-notify'
   });
 
   // Configurable paths
@@ -49,7 +47,7 @@ module.exports = function (grunt) {
       },<% } else { %>
       js: {
         files: ['<%%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['jshint']
+        tasks: ['eslint']
       },
       jstest: {
         files: ['test/spec/{,*/}*.js'],
@@ -60,7 +58,7 @@ module.exports = function (grunt) {
       },<% if (includeSass) { %>
       sass: {
         files: ['<%%= config.app %>/styles/{,*/}*.{scss,sass}'],
-        tasks: ['sass:server', 'postcss']
+        tasks: ['sass', 'postcss']
       },<% } %>
       styles: {
         files: ['<%%= config.app %>/styles/{,*/}*.css'],
@@ -71,7 +69,10 @@ module.exports = function (grunt) {
     browserSync: {
       options: {
         notify: false,
-        background: true
+        background: true,
+        watchOptions: {
+          ignored: ''
+        }
       },
       livereload: {
         options: {
@@ -130,12 +131,8 @@ module.exports = function (grunt) {
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
-      },
-      all: [
+    eslint: {
+      target: [
         'Gruntfile.js',
         '<%%= config.app %>/scripts/{,*/}*.js',
         '!<%%= config.app %>/scripts/vendor/*',
@@ -156,12 +153,20 @@ module.exports = function (grunt) {
     // Jasmine testing framework configuration options
     jasmine: {
       all: {
-        src: '{<%= config.app %>,.tmp}/scripts/{,*/}*.js',
+<% if (useBabel) { -%>
+        src: '.tmp/scripts/{,*/}.js',
+<% } else { -%>
+        src: '{<%%= config.app %>,.tmp}/scripts/{,*/}*.js',
+<% } -%>
         options: {
           vendor: [
             // Your bower_components scripts
           ],
+<% if (useBabel) { -%>
+          specs: '.tmp/spec/{,*/}*.js',
+<% } else { -%>
           specs: '{test,.tmp}/spec/{,*/}*.js',
+<% } -%>
           helpers: '{test,.tmp}/helpers/{,*/}*.js',
           host: 'http://<%%= browserSync.test.options.host %>:<%%= browserSync.test.options.port %>'
         }
@@ -171,7 +176,7 @@ module.exports = function (grunt) {
     // Compiles ES6 with Babel
     babel: {
       options: {
-          sourceMap: true
+        sourceMap: true
       },
       dist: {
         files: [{
@@ -199,18 +204,9 @@ module.exports = function (grunt) {
         sourceMap: true,
         sourceMapEmbed: true,
         sourceMapContents: true,
-        includePaths: ['bower_components']
+        includePaths: ['.']
       },
       dist: {
-        files: [{
-          expand: true,
-          cwd: '<%%= config.app %>/styles',
-          src: ['*.{scss,sass}'],
-          dest: '.tmp/styles',
-          ext: '.css'
-        }]
-      },
-      server: {
         files: [{
           expand: true,
           cwd: '<%%= config.app %>/styles',
@@ -226,8 +222,8 @@ module.exports = function (grunt) {
         map: true,
         processors: [
           // Add vendor prefixed styles
-          require('autoprefixer-core')({
-            browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
+          require('autoprefixer')({
+            browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']
           })
         ]
       },
@@ -250,11 +246,11 @@ module.exports = function (grunt) {
 <% } else { -%>
         exclude: ['bower_components/respond/'],
 <% } -%>
-        ignorePath: /^<%%= config.app %>\/|\.\.\//
+        ignorePath: /^(\.\.\/)*\.\./
       }<% if (includeSass) { %>,
       sass: {
         src: ['<%%= config.app %>/styles/{,*/}*.{scss,sass}'],
-        ignorePath: /(\.\.\/){1,2}bower_components\//
+        ignorePath: /^(\.\.\/)+/
       }<% } %>
     },
 
@@ -485,7 +481,7 @@ module.exports = function (grunt) {
     concurrent: {
       server: [<% if (useBabel) { %>
         'babel:dist',<% } %><% if (includeSass) { %>
-        'sass:server'<% } else { %>
+        'sass'<% } else { %>
         'copy:styles'<% } %>
       ],
       test: [<% if (useBabel) { %>
@@ -572,7 +568,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('default', [
-    'newer:jshint',
+    'newer:eslint',
     'test',
     'build'
   ]);

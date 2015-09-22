@@ -5,7 +5,16 @@
     <title><%= title %></title>
     <meta name="description" content="<%= desc %>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+<<<<<<< HEAD
     <!-- build:css styles/vendor.css -->
+=======
+
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <!-- build:css(.) styles/vendor.css -->
+>>>>>>> 2384babe8df84519d65b0c006b642bcb3ce63b0a
     <!-- bower:css -->
     <!-- endbower -->
     <!-- endbuild -->
@@ -13,7 +22,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild --><% if (includeModernizr) { %>
     <!-- build:js scripts/vendor/modernizr.js -->
-    <script src="bower_components/modernizr/modernizr.js"></script>
+    <script src="/bower_components/modernizr/modernizr.js"></script>
     <!-- endbuild -->
     <% } %>
     <!--[if lt IE 9]>
@@ -136,7 +145,7 @@
     <!-- endbuild -->
     <% } %>
 
-    <!-- build:js scripts/main.js -->
+    <!-- build:js(.tmp) scripts/main.js -->
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
 

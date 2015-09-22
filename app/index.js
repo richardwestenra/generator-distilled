@@ -1,5 +1,4 @@
 'use strict';
-var path = require('path');
 var generators = require('yeoman-generator');
 var yosay = require('yosay');
 var chalk = require('chalk');
@@ -33,13 +32,13 @@ module.exports = generators.Base.extend({
     this.option('babel', {
       desc: 'Use Babel',
       type: Boolean,
-      defaults: false
+      defaults: true
     });
 
     if (this.options['test-framework'] === 'mocha') {
       testLocal = require.resolve('generator-mocha/generators/app/index.js');
     } else if (this.options['test-framework'] === 'jasmine') {
-      testLocal = require.resolve('generator-jasmine/lib/generators/app/index.js');
+      testLocal = require.resolve('generator-jasmine/generators/app/index.js');
     }
 
     this.composeWith(this.options['test-framework'] + ':app', {
@@ -119,6 +118,14 @@ module.exports = generators.Base.extend({
       name: 'url',
       message: 'What is the page URL? (include trailing slash)',
       default: 'http://nbed_url/'
+    }, {
+      type: 'confirm',
+      name: 'includeJQuery',
+      message: 'Would you like to include jQuery?',
+      default: true,
+      when: function (answers) {
+        return answers.features.indexOf('includeBootstrap') === -1;
+      }
     }];
 
     this.prompt(prompts, function (answers) {
@@ -131,6 +138,7 @@ module.exports = generators.Base.extend({
       this.includeSass = hasFeature('includeSass');
       this.includeBootstrap = hasFeature('includeBootstrap');
       this.includeModernizr = hasFeature('includeModernizr');
+      this.includeJQuery = answers.includeJQuery;
 
       this.clientName = answers.clientName;
       this.sshHost = answers.sshHost;
@@ -174,6 +182,7 @@ module.exports = generators.Base.extend({
         {
           includeSass: this.includeSass,
           includeModernizr: this.includeModernizr,
+          includeJQuery: this.includeBootstrap || this.includeJQuery,
           testFramework: this.options['test-framework'],
           useBabel: this.options['babel']
         }
@@ -181,12 +190,9 @@ module.exports = generators.Base.extend({
     },
 
     git: function () {
-      this.fs.copyTpl(
+      this.fs.copy(
         this.templatePath('gitignore'),
-        this.destinationPath('.gitignore'),
-        {
-          includeSass: this.includeSass
-        }
+        this.destinationPath('.gitignore')
       );
 
       this.fs.copy(
@@ -234,7 +240,7 @@ module.exports = generators.Base.extend({
             }
           };
         }
-      } else {
+      } else if (this.includeJQuery) {
         bowerJson.dependencies['jquery'] = '~2.1.4';
       }
 
@@ -262,7 +268,6 @@ module.exports = generators.Base.extend({
     readme: function () {
       this.copy('readme.md', 'readme.md');
     },
-
     editorConfig: function () {
       this.fs.copy(
         this.templatePath('editorconfig'),
@@ -396,7 +401,7 @@ module.exports = generators.Base.extend({
       bowerJson: bowerJson,
       src: 'app/index.html',
       exclude: ['bootstrap.js'],
-      ignorePath: /^app\/|\.\.\//
+      ignorePath: /^(\.\.\/)*\.\./
     });
 
     if (this.includeSass) {
@@ -404,7 +409,7 @@ module.exports = generators.Base.extend({
       wiredep({
         bowerJson: bowerJson,
         src: 'app/styles/*.scss',
-        ignorePath: /(\.\.\/){1,2}bower_components\//
+        ignorePath: /^(\.\.\/)+/
       });
     }
   }
