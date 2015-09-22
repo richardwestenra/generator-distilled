@@ -241,7 +241,7 @@ module.exports = generators.Base.extend({
           };
         }
       } else if (this.includeJQuery) {
-        bowerJson.dependencies['jquery'] = '~2.1.4';
+        bowerJson.dependencies['jquery'] = '~1.11.3';
       }
 
       if (this.includeModernizr) {
