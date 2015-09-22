@@ -13,5 +13,6 @@
   "quotmark": "single",
   "strict": true,
   "undef": true,
-  "unused": true
+  "unused": true,
+  "predef": ["Modernizr","_","d3"]
 }
