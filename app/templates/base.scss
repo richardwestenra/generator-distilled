@@ -87,6 +87,17 @@ a {
 
 
 // mixins:
+@mixin noList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+@mixin fullscreen {
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
 @mixin input-placeholder {
     &.placeholder { @content; }
     &:-moz-placeholder { @content; }
