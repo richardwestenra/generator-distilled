@@ -1,4 +1,4 @@
-//-- Main --//
+//--- Main ---//
 <% if (includeBootstrap) { -%>
 $icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
 
@@ -8,9 +8,8 @@ $icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
 <% } else { %>// bower:scss
 // endbower
 <% } %>
-@import "base", "fontface";
-
-body {
-}
-
+@import "variables";
+@import "mixins";
+@import "base";
+@import "fontface";
 @import "social";

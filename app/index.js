@@ -294,6 +294,14 @@ module.exports = generators.Base.extend({
         }
       );
       this.fs.copyTpl(
+        this.templatePath('variables'+ext),
+        this.destinationPath('app/styles/'+prefix+'variables'+ext)
+      );
+      this.fs.copyTpl(
+        this.templatePath('mixins'+ext),
+        this.destinationPath('app/styles/'+prefix+'mixins'+ext)
+      );
+      this.fs.copyTpl(
         this.templatePath('base'+ext),
         this.destinationPath('app/styles/'+prefix+'base'+ext)
       );
