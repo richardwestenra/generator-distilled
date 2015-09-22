@@ -5,7 +5,7 @@ $m_smallest: 300px;
 $m_smaller: 400px;
 $m_small: 500px;
 $m_smallish: 600px;
-$m_tablet: 768px;
+$m_tablet: 800px;
 $m_medium: 960px;
 $m_large: 1140px;
 $m_larger: 1400px;
@@ -92,7 +92,7 @@ a {
     &:-moz-placeholder { @content; }
     &::-moz-placeholder { @content; }
     &:-ms-input-placeholder { @content; }
-    &::-webkit-input-placeholder { @content; } 
+    &::-webkit-input-placeholder { @content; }
 }
 @mixin svg($img){
     .no-js &,
