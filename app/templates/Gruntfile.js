@@ -16,7 +16,8 @@ module.exports = function (grunt) {
   // Automatically load required grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
-    notify_hooks: 'grunt-notify'
+    notify_hooks: 'grunt-notify',
+    buildcontrol: 'grunt-build-control'
   });
 
   // Configurable paths
@@ -456,7 +457,7 @@ module.exports = function (grunt) {
     notify_hooks: {
       options: {
         enabled: true,
-        max_jshint_notifications: 5, // maximum number of notifications from jshint output
+        max_jshint_notifications: 5 // maximum number of notifications from jshint output
       }
     },
     notify: {
