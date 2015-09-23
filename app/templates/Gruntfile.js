@@ -416,6 +416,8 @@ module.exports = function (grunt) {
             '!<%%= config.dist %>/scripts/vendor/*'
           ]
         },
+        // tests: ['css_pointerevents'],
+        matchCommunityTests: true,
         uglify: true
       }
     },<% } %>
