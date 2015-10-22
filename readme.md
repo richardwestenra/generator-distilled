@@ -1,4 +1,4 @@
-# Web app generator [![Build Status](https://secure.travis-ci.org/yeoman/generator-webapp.svg?branch=master)](http://travis-ci.org/yeoman/generator-webapp)
+# Distilled's web app generator [![Build Status](https://secure.travis-ci.org/richardwestenra/generator-distilled.svg?branch=master)](http://travis-ci.org/richardwestenra/generator-distilled)
 
 [Yeoman](http://yeoman.io) generator that scaffolds out a front-end web app.
 
@@ -16,14 +16,23 @@
 * Bootstrap for Sass (Optional)
 * Leaner Modernizr builds (Optional)
 
+### PLUS only in this forked version:
+
+* Social buttons, embed code and social platform meta tags
+* Easy git deployment to a server with Grunt Build-Control
+* Automatically zip deliverables with Grunt Compress
+* Native OS notifications with Grunt Notify
+
 For more information on what `generator-webapp` can do for you, take a look at the [Grunt tasks](https://github.com/yeoman/generator-webapp/blob/master/app/templates/_package.json) used in our `package.json`.
 
 
 ## Getting Started
 
-- Install: `npm install -g generator-webapp`
-- Run: `yo webapp`
+- Install: `npm install -g generator-distilled`
+- Run: `yo distilled`
 - Run `grunt` for building and `grunt serve` for preview[\*](#grunt-serve-note). `--allow-remote` option for remote access.
+- Run `grunt deploy` to upload a production build to a server via SSH with Git
+- Run `grunt zip` to create a zipped deliverable file in `/zips`
 
 
 #### Third-Party Dependencies
