@@ -1,7 +1,7 @@
 {
   "name": "generator-distilled",
   "version": "1.1.0",
-  "description": "Scaffold out a front-end web app. Forked from generator-webapp.",
+  "description": "Scaffold an interactive data-vis. Forked from generator-webapp, but with custom features for common Distilled workflows.",
   "license": "BSD",
   "repository": "yeoman/generator-distilled",
   "author": "Richard Westenra",
