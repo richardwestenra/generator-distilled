@@ -3,6 +3,9 @@
 * {
     box-sizing: border-box;
 }
+html {
+    -webkit-text-size-adjust: none; // prevent iOS landscape zooming
+}
 html, body {
     margin: 0;
     padding: 0;
